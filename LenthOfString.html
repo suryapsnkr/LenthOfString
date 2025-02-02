@@ -1,32 +1,46 @@
-<html>
-    <head>
-      <link rel='stylesheet' type='text/css' media='screen' href='https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css'>
-      <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
-      <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
-    </head>
+<!doctype html>
+<html lang="en">
 
-  <body><center><br>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PyScript Example</title>
+  <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css" />
+  <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+</head>
 
-<textarea name="input_text" id="input_text" placeholder="Enter Your Text"></textarea><br><br>
+<body>
+  <center>
+    <h1>PyScript Text Length Counter</h1>
+    <textarea id="input_text" placeholder="Enter Your Text"></textarea><br><br>
 
-<button id="run" type="button" class="button is-primary" pys-onClick="count">Count</button>
-<button id="clear" type="button" class="button is-danger" pys-onClick="clear">Clear</button><br><br>
-    
-<p id='output'></p>
+    <button id="run" type="button">Count</button>
+    <button id="clear" type="button">Clear</button><br><br>
 
-<py-script>
-  input_text=Element("input_text")
+    <p id="output"></p>
+  </center>
 
-  output=Element("output")
+  <script type="py" id="pyscript">
+    from js import document
+    from pyodide.ffi import create_proxy  # ✅ Import create_proxy to prevent errors
 
-  def clear(*args,**kwargs):
-    input_text.clear()
-    output.clear()
-  
-  def count(*args,**kwargs):
-    number=len(input_text.value)
-    output.write("Lenth of String is = " f"{number}")
+    def clear(event):
+        document.getElementById("input_text").value = ""
+        document.getElementById("output").innerText = ""
 
-</py-script>
-</center></body>
+    def count(event):
+        text_value = document.getElementById("input_text").value
+        text_length = len(text_value)
+        document.getElementById("output").innerText = f"Length of String is: {text_length}"
+
+    # ✅ Create proxies to avoid garbage collection issues
+    count_proxy = create_proxy(count)
+    clear_proxy = create_proxy(clear)
+
+    # ✅ Attach event listeners using the proxies
+    document.getElementById("run").addEventListener("click", count_proxy)
+    document.getElementById("clear").addEventListener("click", clear_proxy)
+  </script>
+</body>
+
 </html>
